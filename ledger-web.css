@@ -1,0 +1,12 @@
+body {
+    margin-left:10%;
+}
+
+input#check {
+    width: 55px;
+    /* border: 5px; */
+}
+
+input.amount {
+    width: 100px;
+}

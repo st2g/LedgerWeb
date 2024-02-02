@@ -1,0 +1,218 @@
+// "use strict";
+console.log("I'm Alive");
+
+const textArea = document.getElementById("results");
+const definitionPicker = document.getElementById("defs");
+const definitionUpload = document.getElementById("def-upload");
+// const ledgerPicker = document.getElementById("ledger-file");
+let payeeOptions = document.getElementById("payee-select");
+let accountOptions = document.getElementsByClassName("account");
+const entryAmounts = document.getElementsByClassName("amount");
+const accountOthers = document.getElementsByClassName("amount_other");
+const checkNum = document.getElementById("check");
+checkNum.style.display = "none";
+const processButton = document.getElementById("process-entry");
+const clearButton = document.getElementById("clear-results");
+const payeeOther = document.getElementById("payee-other");
+const copyButton = document.getElementById("copy-results");
+const checkBox = document.getElementById("allowCheck");
+const payees = [];
+const accounts = [];
+// let lines;
+
+definitionUpload.addEventListener('change', async () => {
+    if (definitionUpload.files.length == 1) {
+        // console.log('File uploaded: ', definitionUpload.files[0]);
+        let [file] = definitionUpload.files;
+        const contents = await file.text();
+        parseDefinitionContents(contents);
+    }
+})
+
+let debug;
+function parseDefinitionContents(contents) {
+    // Match until semicolon or end of line
+    const payeesRe = /^payee\s(\S.*?(?=;|$))/;
+    const accountsRe = /^account\s(\S.*?(?=;|$))/;
+
+    lines = contents.split(/\r?\n/);
+    for (let x of lines) {
+        // console.log(x);
+        // Get Payees from each line
+        let result = x.match(payeesRe);
+        if (result) {
+            // Add to payees Array
+            debug = [result[1].trim(),payees];
+            if (payees.findIndex((z) => { return result[1].trim() === z }) == -1) {
+                payees.push(result[1].trim());
+            }
+            // Add to option select list
+            // payeeOptions.add(new Option(result[1].trim(), undefined));
+        }
+        // Get Accounts from each line
+        result = x.match(accountsRe);
+        if (result) {
+            // Add to accounts Arry
+            if (accounts.findIndex((z) => { return result[1].trim() === z }) == -1) {
+                accounts.push(result[1].trim());
+            }
+            // Add to option select lists
+            // for (let z of accountOptions) {
+            //     z.add(new Option(result[1].trim(), undefined));
+            // }
+        }
+    }
+    payees.sort();
+    // Clear current Payees list
+    for (let i = payeeOptions.length; i > 0; i--) { payeeOptions.remove(i); }
+    // Repopulate Payees list
+    for (let x of payees) { payeeOptions.add(new Option(x, undefined)); }
+    accounts.sort();
+    for (let z of accountOptions) {
+        // Clear Accounts lists
+        for (let y = z.length; y > 0; y--) { z.remove(y); }
+        // Populate Accounts lists
+        for (let y of accounts) { z.add(new Option(y, undefined)); }
+    }
+
+
+}
+// definitionPicker.addEventListener('click', definitionUpload.click());
+// let ledgerHandle, definitionHandle;
+// const filePickOpts = {
+//     types: [
+//         {
+//             description: "Ledger File",
+//             accept: {
+//                 "txt/*": [".ledger"],
+//             },
+//         },
+//     ],
+// }
+/* definitionPicker.addEventListener('click', async () => {
+    [definitionHandle] = await window.showOpenFilePicker(filePickOpts);
+    const definitionFile = await definitionHandle.getFile();
+    const contents = await definitionFile.text();
+    parseDefinitionContents(contents);
+}); */
+
+/*ledgerPicker.addEventListener('click', async () => {
+    [ledgerHandle] = await window.showOpenFilePicker(filePickOpts);
+    const ledgerFile = await ledgerHandle.getFile();
+    const contents = await ledgerFile.text();
+    // textArea.innerText = contents;
+    // console.log(contents);
+});*/
+
+// let test;
+let entryString;
+
+// document.addEventListener()
+processButton.addEventListener('click', async () => {
+    // Add the results text
+    let date;
+    if (document.getElementById("the-date").value) {
+        date = document.getElementById("the-date").value;
+    } else {
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let yyyy = today.getFullYear();
+        date = `${yyyy}-${mm}-${dd}`;
+    }
+    let payee = payeeOptions.value === 'Other' ?
+        payeeOther.value.trim() :
+        payeeOptions.value;
+    let checkNumber = parseInt(checkNum.value);
+    const entries = [];
+    let emptyAmounts = 0;
+    let validEntry = true;
+    for (let i = 0; i < accountOptions.length; i++) {
+        if (accountOptions[i].value.trim() === '') { validEntry = false; }
+        if (accountOptions[i].value === 'Other' && accountOthers[i].value.trim() === '') { validEntry = false; };
+        if (entryAmounts[i].value === '') { emptyAmounts++; }
+        entries.push({
+            account: accountOptions[i].value === 'Other' ?
+                accountOthers[i].value.trim() :
+                accountOptions[i].value,
+            amount: entryAmounts[i].value !== '' ?
+                parseFloat(entryAmounts[i].value).toFixed(2) :
+                ''
+        });
+    }
+
+    if (payee.trim() === '') { validEntry = false; }
+    // console.log(emptyAmounts);
+    if (!validEntry) { alert("Invalid entry") }
+    else {
+        if (emptyAmounts > 1) {
+            alert("Invalid entry: Empty amounts cannot excede 1");
+        } else {
+            entryString = checkNumber ?
+                `${date} (${checkNumber}) ${payee}\n` :
+                `${date} ${payee}\n`;
+            for (let x of entries) {
+                entryString += x.amount ?
+                    `    ${x.account}  $${x.amount}\n` :
+                    `    ${x.account}\n`;
+            }
+            // console.log(entryString);
+            textArea.innerHTML += '<pre>' + entryString + '</pre><br>';
+        }
+    }
+});
+
+clearButton.addEventListener('click', () => {
+    // Clear the results text
+    if (confirm("Are you sure you want to clear the results?")) {
+        // Clear results pane
+        textArea.innerHTML = '';
+        // Clear entered amounts
+        for (let x of entryAmounts) { x.value = ''; }
+        // Clear accounts
+        for (let x of accountOptions) { x.value = ''; }
+        for (let x of accountOthers) {
+            x.value = '';
+            x.style.display = 'none';
+        }
+        // Clear Payee
+        payeeOptions.value = '';
+        payeeOther.value = '';
+        payeeOther.style.display = 'none';
+        // Clear Check Number
+        checkNum.value = '';
+        // Clear the Date
+        document.getElementById("the-date").value = '';
+    }
+})
+
+copyButton.addEventListener('click', () => {
+    // Copy results text to the clipboard
+    let copiedText = textArea.innerHTML;
+    // Remove <pre> tags from HTML
+    copiedText = copiedText.replace(/<\/?pre>/g, '');
+    // Remove <br> tags from HTML and replace with new line
+    copiedText = copiedText.replace(/<br>/g, '\n');
+    navigator.clipboard.writeText(copiedText);
+})
+
+checkBox.addEventListener('click', () => {
+    checkNum.value = '';
+    checkNum.style.display = checkBox.checked == false ?
+        "none" :
+        "inline";
+})
+
+payeeOptions.addEventListener('change', () => {
+    payeeOther.style.display = payeeOptions.value === 'Other' ?
+        "inline" :
+        'none';
+})
+
+for (let i = 0; i < accountOptions.length; i++) {
+    accountOptions[i].addEventListener('change', () => {
+        accountOthers[i].style.display = accountOptions[i].value === 'Other' ?
+            'inline' :
+            'none';
+    })
+}

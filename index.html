@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="ledger-web.css" type="text/css">
+    </link>
+    <script src="ledger-web.js" defer></script>
+</head>
+
+<body>
+    <!-- <button id="ledger-file">Ledger File</button> -->
+    <button id="defs" onclick="document.getElementById('def-upload').click()">Definition File</button>
+    <input id="def-upload" accept=".ledger" type="file" name="def-upload" style="display: none;">
+    <br>
+    <input name="allowCheck" type="checkbox" id="allowCheck">
+    <label for="allowCheck">Check Number?</label>
+    <br />
+    <input name="date" type="date" id="the-date" />
+    <input name="check" type="number" id="check" />
+    <select name="payee" id="payee-select">
+        <option>Other</option>
+    </select>
+    <input name="payee-other" id="payee-other" style="display: none;" />
+    <br />
+    <span id="entries">
+        <select name="account_1" class="account">
+            <option>Other</option>
+        </select>
+        <input name="account_other_1" id="account_other_1" style="display: none;" class="amount_other" />
+        <input name="amount_1" type="number" class="amount" />
+        <br />
+        <select name="account_2" class="account">
+            <option>Other</option>
+        </select>
+        <input name="account_other_2" id="account_other_2" style="display: none;" class="amount_other" />
+        <input name="amount_2" type="number" class="amount" />
+        <br />
+    </span>
+    <button id="process-entry">Process Entry</button>
+    <button id="copy-results">Copy Results</button>
+    <button id="clear-results">Clear Results</button>
+    <br />
+    <span id="results"></span>
+</body>
+
+</html>
