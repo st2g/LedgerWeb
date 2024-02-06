@@ -2,11 +2,12 @@
 console.log("I'm Alive");
 
 const textArea = document.getElementById("results");
+const dateArea = document.getElementById("the-date");
 const definitionPicker = document.getElementById("defs");
 const definitionUpload = document.getElementById("def-upload");
 // const ledgerPicker = document.getElementById("ledger-file");
-let payeeOptions = document.getElementById("payee-select");
-let accountOptions = document.getElementsByClassName("account");
+const payeeOptions = document.getElementById("payee-select");
+const accountOptions = document.getElementsByClassName("account");
 const entryAmounts = document.getElementsByClassName("amount");
 const accountOthers = document.getElementsByClassName("amount_other");
 const checkNum = document.getElementById("check");
@@ -42,24 +43,18 @@ function parseDefinitionContents(contents) {
         let result = x.match(payeesRe);
         if (result) {
             // Add to payees Array
-            debug = [result[1].trim(),payees];
+            debug = [result[1].trim(), payees];
             if (payees.findIndex((z) => { return result[1].trim() === z }) == -1) {
                 payees.push(result[1].trim());
             }
-            // Add to option select list
-            // payeeOptions.add(new Option(result[1].trim(), undefined));
         }
         // Get Accounts from each line
         result = x.match(accountsRe);
         if (result) {
-            // Add to accounts Arry
+            // Add to accounts Array
             if (accounts.findIndex((z) => { return result[1].trim() === z }) == -1) {
                 accounts.push(result[1].trim());
             }
-            // Add to option select lists
-            // for (let z of accountOptions) {
-            //     z.add(new Option(result[1].trim(), undefined));
-            // }
         }
     }
     payees.sort();
@@ -77,32 +72,6 @@ function parseDefinitionContents(contents) {
 
 
 }
-// definitionPicker.addEventListener('click', definitionUpload.click());
-// let ledgerHandle, definitionHandle;
-// const filePickOpts = {
-//     types: [
-//         {
-//             description: "Ledger File",
-//             accept: {
-//                 "txt/*": [".ledger"],
-//             },
-//         },
-//     ],
-// }
-/* definitionPicker.addEventListener('click', async () => {
-    [definitionHandle] = await window.showOpenFilePicker(filePickOpts);
-    const definitionFile = await definitionHandle.getFile();
-    const contents = await definitionFile.text();
-    parseDefinitionContents(contents);
-}); */
-
-/*ledgerPicker.addEventListener('click', async () => {
-    [ledgerHandle] = await window.showOpenFilePicker(filePickOpts);
-    const ledgerFile = await ledgerHandle.getFile();
-    const contents = await ledgerFile.text();
-    // textArea.innerText = contents;
-    // console.log(contents);
-});*/
 
 // let test;
 let entryString;
@@ -111,9 +80,8 @@ let entryString;
 processButton.addEventListener('click', async () => {
     // Add the results text
     let date;
-    if (document.getElementById("the-date").value) {
-        date = document.getElementById("the-date").value;
-    } else {
+    if (dateArea.value) { date = dateArea.value; }
+    else {
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -145,9 +113,8 @@ processButton.addEventListener('click', async () => {
     // console.log(emptyAmounts);
     if (!validEntry) { alert("Invalid entry") }
     else {
-        if (emptyAmounts > 1) {
-            alert("Invalid entry: Empty amounts cannot excede 1");
-        } else {
+        if (emptyAmounts > 1) { alert("Invalid entry: Empty amounts cannot excede 1"); }
+        else {
             entryString = checkNumber ?
                 `${date} (${checkNumber}) ${payee}\n` :
                 `${date} ${payee}\n`;
@@ -162,7 +129,7 @@ processButton.addEventListener('click', async () => {
     }
 });
 
-clearButton.addEventListener('click', () => {
+clearButton.addEventListener('click', (e) => {
     // Clear the results text
     if (confirm("Are you sure you want to clear the results?")) {
         // Clear results pane
@@ -182,8 +149,9 @@ clearButton.addEventListener('click', () => {
         // Clear Check Number
         checkNum.value = '';
         // Clear the Date
-        document.getElementById("the-date").value = '';
+        dateArea.value = '';
     }
+    // else {textArea.innerHTML=e;}
 })
 
 copyButton.addEventListener('click', () => {
