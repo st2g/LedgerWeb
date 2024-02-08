@@ -19,6 +19,7 @@ const copyButton = document.getElementById("copy-results");
 const checkBox = document.getElementById("allowCheck");
 const payees = [];
 const accounts = [];
+let entryNum = 0;
 // let lines;
 
 definitionUpload.addEventListener('change', async () => {
@@ -73,6 +74,12 @@ function parseDefinitionContents(contents) {
 
 }
 
+let entryToRemove;
+function removeEntry(e) {
+    entryToRemove = document.getElementById(e);
+    entryToRemove.outerHTML = '';
+}
+
 // let test;
 let entryString;
 
@@ -124,7 +131,8 @@ processButton.addEventListener('click', async () => {
                     `    ${x.account}\n`;
             }
             // console.log(entryString);
-            textArea.innerHTML += '<pre>' + entryString + '</pre><br>';
+            textArea.innerHTML += '<span id="entry_' + ++entryNum + '"><pre>' + entryString + '</pre><button onclick="removeEntry(' + "'entry_" + entryNum + "'" + ')">Remove Above Entry</button><br></span>';
+            // textArea.innerHTML += '<pre>' + entryString + '</pre><br>';
         }
     }
 });
@@ -150,6 +158,8 @@ clearButton.addEventListener('click', (e) => {
         checkNum.value = '';
         // Clear the Date
         dateArea.value = '';
+        // Reset entry number
+        entryNum = 0;
     }
     // else {textArea.innerHTML=e;}
 })
@@ -159,6 +169,11 @@ copyButton.addEventListener('click', () => {
     let copiedText = textArea.innerHTML;
     // Remove <pre> tags from HTML
     copiedText = copiedText.replace(/<\/?pre>/g, '');
+    // Remove <span> tags
+    copiedText = copiedText.replace(/<span id=.*?>/g, '');
+    copiedText = copiedText.replace(/<\/span>/g,'');
+    // Remove <button>s
+    copiedText = copiedText.replace(/<button.*?<\/button>/g, '');
     // Remove <br> tags from HTML and replace with new line
     copiedText = copiedText.replace(/<br>/g, '\n');
     navigator.clipboard.writeText(copiedText);
