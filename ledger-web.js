@@ -2,6 +2,7 @@
 console.log("I'm Alive");
 
 const textArea = document.getElementById("results");
+const extraEntries = document.getElementById("xtra-entries");
 const dateArea = document.getElementById("the-date");
 const definitionPicker = document.getElementById("defs");
 const definitionUpload = document.getElementById("def-upload");
@@ -20,6 +21,7 @@ const checkBox = document.getElementById("allowCheck");
 const payees = [];
 const accounts = [];
 let entryNum = 0;
+let lineNum = 10;
 // let lines;
 
 definitionUpload.addEventListener('change', async () => {
@@ -58,26 +60,61 @@ function parseDefinitionContents(contents) {
             }
         }
     }
+    addPayees();
+    for (let z of accountOptions) { addAccounts(z) }
+    // addAccounts();
+    // payees.sort();
+    // // Clear current Payees list
+    // for (let i = payeeOptions.length; i > 0; i--) { payeeOptions.remove(i); }
+    // // Repopulate Payees list
+    // for (let x of payees) { payeeOptions.add(new Option(x, undefined)); }
+    // accounts.sort();
+    // for (let z of accountOptions) {
+    //     // Clear Accounts lists
+    //     for (let y = z.length; y > 0; y--) { z.remove(y); }
+    //     // Populate Accounts lists
+    //     for (let y of accounts) { z.add(new Option(y, undefined)); }
+    // }
+}
+
+function addPayees() {
     payees.sort();
     // Clear current Payees list
     for (let i = payeeOptions.length; i > 0; i--) { payeeOptions.remove(i); }
     // Repopulate Payees list
     for (let x of payees) { payeeOptions.add(new Option(x, undefined)); }
-    accounts.sort();
-    for (let z of accountOptions) {
-        // Clear Accounts lists
-        for (let y = z.length; y > 0; y--) { z.remove(y); }
-        // Populate Accounts lists
-        for (let y of accounts) { z.add(new Option(y, undefined)); }
-    }
-
-
 }
+
+function addAccounts(e) {
+    accounts.sort();
+    // Clear Accounts lists
+    for (let y = e.length; y > 0; y--) { e.remove(y); }
+    // Populate Accounts lists
+    for (let y of accounts) { e.add(new Option(y, undefined)); }
+}
+
 
 let entryToRemove;
 function removeEntry(e) {
     entryToRemove = document.getElementById(e);
     entryToRemove.outerHTML = '';
+    updateAccountOptionsStyle();
+}
+
+function addLineItem() {
+    lineNum++;
+    let entryHTMLString = '<span id="input_line_' + lineNum + '">';
+    entryHTMLString += '<i class="fa-solid fa-minus" style="cursor: pointer;" onclick="removeEntry(' + "'input_line_" + lineNum + "'" + ')"></i>\n';
+    entryHTMLString += '<i class="fa-solid fa-plus" style="cursor: pointer;" onclick="addLineItem()"></i>\n';
+    entryHTMLString += '<select name="account_' + lineNum + '" id="account_' + lineNum + '" class="account">\n<option>Other</option>\n</select>\n';
+    entryHTMLString += '<input name="account_other_' + lineNum + '" id="account_other_' + lineNum + '"  class="amount_other" />\n';
+    entryHTMLString += '<input name="amount_' + lineNum + '" type="number" class="amount" /><br /></span>\n';
+    extraEntries.innerHTML += entryHTMLString;
+
+    const myNewLine = document.getElementById('account_' + lineNum);
+    addAccounts(myNewLine);
+    // TODO: Fix this. Only will change the most recent line that is lineNum
+    updateAccountOptionsStyle();
 }
 
 // let test;
@@ -137,7 +174,7 @@ processButton.addEventListener('click', async () => {
     }
 });
 
-clearButton.addEventListener('click', (e) => {
+clearButton.addEventListener('click', () => {
     // Clear the results text
     if (confirm("Are you sure you want to clear the results?")) {
         // Clear results pane
@@ -171,7 +208,7 @@ copyButton.addEventListener('click', () => {
     copiedText = copiedText.replace(/<\/?pre>/g, '');
     // Remove <span> tags
     copiedText = copiedText.replace(/<span id=.*?>/g, '');
-    copiedText = copiedText.replace(/<\/span>/g,'');
+    copiedText = copiedText.replace(/<\/span>/g, '');
     // Remove <button>s
     copiedText = copiedText.replace(/<button.*?<\/button>/g, '');
     // Remove <br> tags from HTML and replace with new line
@@ -192,10 +229,22 @@ payeeOptions.addEventListener('change', () => {
         'none';
 })
 
-for (let i = 0; i < accountOptions.length; i++) {
-    accountOptions[i].addEventListener('change', () => {
-        accountOthers[i].style.display = accountOptions[i].value === 'Other' ?
-            'inline' :
-            'none';
-    })
+function updateAccountOptionsStyle() {
+    for (let i = 0; i < accountOptions.length; i++) {
+        // function changeOptions(){
+        //     accountOthers[i].style.display = accountOptions[i].value === 'Other' ?
+        //     'inline' :
+        //     'none';
+        // }
+        // accountOptions[i].removeEventListener('change', changeOptions);
+        let old_elem = accountOptions[i];
+        let new_elem = old_elem.cloneNode(true);
+        old_elem.parentNode.replaceChild(new_elem, old_elem);
+        accountOptions[i].addEventListener('change', () => {
+            accountOthers[i].style.display = accountOptions[i].value === 'Other' ?
+                'inline' :
+                'none';
+        });
+    }
 }
+updateAccountOptionsStyle();
