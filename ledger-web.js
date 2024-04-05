@@ -62,35 +62,30 @@ function parseDefinitionContents(contents) {
     }
     addPayees();
     for (let z of accountOptions) { addAccounts(z) }
-    // addAccounts();
-    // payees.sort();
-    // // Clear current Payees list
-    // for (let i = payeeOptions.length; i > 0; i--) { payeeOptions.remove(i); }
-    // // Repopulate Payees list
-    // for (let x of payees) { payeeOptions.add(new Option(x, undefined)); }
-    // accounts.sort();
-    // for (let z of accountOptions) {
-    //     // Clear Accounts lists
-    //     for (let y = z.length; y > 0; y--) { z.remove(y); }
-    //     // Populate Accounts lists
-    //     for (let y of accounts) { z.add(new Option(y, undefined)); }
-    // }
 }
 
 function addPayees() {
     payees.sort();
+    // Get Current Payee value
+    let currentValue = payeeOptions.value;
     // Clear current Payees list
     for (let i = payeeOptions.length; i > 0; i--) { payeeOptions.remove(i); }
     // Repopulate Payees list
     for (let x of payees) { payeeOptions.add(new Option(x, undefined)); }
+    // Set back to previous value
+    payeeOptions.value = currentValue;
 }
 
 function addAccounts(e) {
     accounts.sort();
+    // Get Current Account value
+    let currentValue = e.value;
     // Clear Accounts lists
     for (let y = e.length; y > 0; y--) { e.remove(y); }
     // Populate Accounts lists
     for (let y of accounts) { e.add(new Option(y, undefined)); }
+    // Set back to previous value
+    e.value = currentValue;
 }
 
 
@@ -98,7 +93,7 @@ let entryToRemove;
 function removeEntry(e) {
     entryToRemove = document.getElementById(e);
     entryToRemove.outerHTML = '';
-    updateAccountOptionsStyle();
+    // updateAccountOptionsStyle();
 }
 
 function addLineItem() {
@@ -180,21 +175,21 @@ clearButton.addEventListener('click', () => {
         // Clear results pane
         textArea.innerHTML = '';
         // Clear entered amounts
-        for (let x of entryAmounts) { x.value = ''; }
+        // for (let x of entryAmounts) { x.value = ''; }
         // Clear accounts
-        for (let x of accountOptions) { x.value = ''; }
-        for (let x of accountOthers) {
-            x.value = '';
-            x.style.display = 'none';
-        }
+        // for (let x of accountOptions) { x.value = ''; }
+        // for (let x of accountOthers) {
+            // x.value = '';
+            // x.style.display = 'none';
+        // }
         // Clear Payee
-        payeeOptions.value = '';
-        payeeOther.value = '';
-        payeeOther.style.display = 'none';
+        // payeeOptions.value = '';
+        // payeeOther.value = '';
+        // payeeOther.style.display = 'none';
         // Clear Check Number
-        checkNum.value = '';
+        // checkNum.value = '';
         // Clear the Date
-        dateArea.value = '';
+        // dateArea.value = '';
         // Reset entry number
         entryNum = 0;
     }
@@ -231,12 +226,6 @@ payeeOptions.addEventListener('change', () => {
 
 function updateAccountOptionsStyle() {
     for (let i = 0; i < accountOptions.length; i++) {
-        // function changeOptions(){
-        //     accountOthers[i].style.display = accountOptions[i].value === 'Other' ?
-        //     'inline' :
-        //     'none';
-        // }
-        // accountOptions[i].removeEventListener('change', changeOptions);
         let old_elem = accountOptions[i];
         let new_elem = old_elem.cloneNode(true);
         old_elem.parentNode.replaceChild(new_elem, old_elem);
