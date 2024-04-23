@@ -72,8 +72,8 @@ function addPayees() {
     payeeList.innerHTML = '';
     // Repopulate Payees list
     for (let x of payees) {
-        if (!payeeList.innerHTML.includes('<option>' + x + '</option>')) {
-            payeeList.innerHTML += '<option>' + x + '</option>';
+        if (!payeeList.innerHTML.includes(`<option>${x}</option>`)) {
+            payeeList.innerHTML += `<option>${x}</option>`;
         }
     }
 }
@@ -84,8 +84,8 @@ function addAccounts() {
     accountsList.innerHTML = '';
     // Populate Accounts lists
     for (let y of accounts) {
-        if (!accountsList.innerHTML.includes('<option>' + y + '</option>')) {
-            accountsList.innerHTML += '<option>' + y + '</option>';
+        if (!accountsList.innerHTML.includes(`<option>${y}</option>`)) {
+            accountsList.innerHTML += `<option>${y}</option>`;
         }
     }
 }
@@ -111,11 +111,11 @@ function addLineItem() {
             e: entryAmounts[i].value
         }
     }
-    let entryHTMLString = '<span id="input_line_' + lineNum + '">';
-    entryHTMLString += '<i class="fa-solid fa-minus" style="cursor: pointer;" onclick="removeEntry(' + "'input_line_" + lineNum + "'" + ')"></i>\n';
-    entryHTMLString += '<i class="fa-solid fa-plus" style="cursor: pointer;" onclick="addLineItem()"></i>\n';
-    entryHTMLString += '<input name="account-input_' + lineNum + '" id="account_' + lineNum + '" class="account_input" list="accountsList" onclick="this.select()"/>\n';
-    entryHTMLString += '<input name="amount_' + lineNum + '" type="number" class="amount" /><br /></span>\n';
+    let entryHTMLString = `<span id="input_line_${lineNum}">`;
+    entryHTMLString += `<i class="fa-solid fa-minus" style="cursor: pointer;" onclick="removeEntry('input_line_${lineNum}')"></i>\n`;
+    entryHTMLString += `<i class="fa-solid fa-plus" style="cursor: pointer;" onclick="addLineItem()"></i>\n`;
+    entryHTMLString += `<input name="account-input_${lineNum}" id="account_${lineNum}" class="account_input" list="accountsList" onclick="this.select()"/>\n`;
+    entryHTMLString += `<input name="amount_${lineNum}" type="number" class="amount" /><br /></span>\n`;
     extraEntries.innerHTML += entryHTMLString;
     // Set original values back
     for (let i = 0; i < accountInputs.length - 1; i++) {
