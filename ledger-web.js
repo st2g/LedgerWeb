@@ -97,19 +97,31 @@ function removeEntry(e) {
     entryToRemove.outerHTML = '';
 }
 
-function selectEntry(e){
+function selectEntry(e) {
     e.target.select();
 }
 
 function addLineItem() {
     lineNum++;
-    // FIXME: Find current values and set them back after adding line
+    // Get original values
+    let originalValues = new Array(accountInputs.length);
+    for (let i = 0; i < accountInputs.length; i++) {
+        originalValues[i] = {
+            a: accountInputs[i].value,
+            e: entryAmounts[i].value
+        }
+    }
     let entryHTMLString = '<span id="input_line_' + lineNum + '">';
     entryHTMLString += '<i class="fa-solid fa-minus" style="cursor: pointer;" onclick="removeEntry(' + "'input_line_" + lineNum + "'" + ')"></i>\n';
     entryHTMLString += '<i class="fa-solid fa-plus" style="cursor: pointer;" onclick="addLineItem()"></i>\n';
     entryHTMLString += '<input name="account-input_' + lineNum + '" id="account_' + lineNum + '" class="account_input" list="accountsList" onclick="this.select()"/>\n';
     entryHTMLString += '<input name="amount_' + lineNum + '" type="number" class="amount" /><br /></span>\n';
     extraEntries.innerHTML += entryHTMLString;
+    // Set original values back
+    for (let i = 0; i < accountInputs.length - 1; i++) {
+        accountInputs[i].value = originalValues[i].a
+        entryAmounts[i].value = originalValues[i].e;
+    }
 }
 
 let entryString;
