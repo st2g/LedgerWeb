@@ -1,6 +1,9 @@
 // "use strict";
 console.log("I'm Alive");
 
+//////////////////////////////////////////////////////////////
+// Main Variables
+//////////////////////////////////////////////////////////////
 let entryNum = 0;
 const textArea = document.getElementById("results");
 let lineNum = 10;
@@ -29,6 +32,11 @@ const processButton = document.getElementById("process-entry");
 const clearButton = document.getElementById("clear-results");
 const copyButton = document.getElementById("copy-results");
 
+//////////////////////////////////////////////////////////////
+// Functions
+//////////////////////////////////////////////////////////////
+
+// Upload definition file button/function
 definitionUpload.addEventListener('change', async () => {
     if (definitionUpload.files.length == 1) {
         let [file] = definitionUpload.files;
@@ -37,7 +45,7 @@ definitionUpload.addEventListener('change', async () => {
     }
 })
 
-let debug;
+// Parse contents of definition file - Extract Payees and Accounts
 function parseDefinitionContents(contents) {
     // Match until semicolon or end of line
     const payeesRe = /^payee\s(\S.*?(?=;|$))/;
@@ -66,6 +74,7 @@ function parseDefinitionContents(contents) {
     addAccounts();
 }
 
+// Add Payees to drop down list
 function addPayees() {
     payees.sort();
     // Clear current Payees list
@@ -78,6 +87,7 @@ function addPayees() {
     }
 }
 
+// Add Accounts to drop down list
 function addAccounts() {
     accounts.sort();
     // Clear Accounts lists
@@ -90,17 +100,18 @@ function addAccounts() {
     }
 }
 
-
-let entryToRemove;
+// Function to remove an entry - either processed or account line
 function removeEntry(e) {
-    entryToRemove = document.getElementById(e);
+    let entryToRemove = document.getElementById(e);
     entryToRemove.outerHTML = '';
 }
 
+// Helper function to select the text in a box when clicked
 function selectEntry(e) {
     e.target.select();
 }
 
+// Add new Account and Entry line
 function addLineItem() {
     lineNum++;
     // Get original values
@@ -124,8 +135,7 @@ function addLineItem() {
     }
 }
 
-let entryString;
-
+// Process the text in the Payee, Accounts, and Amounts lines
 processButton.addEventListener('click', async () => {
     // Add the results text
     let date;
@@ -142,6 +152,7 @@ processButton.addEventListener('click', async () => {
     const entries = [];
     let emptyAmounts = 0;
     let validEntry = true;
+    let entryString;
     for (let i = 0; i < accountInputs.length; i++) {
         if (accountInputs[i].value.trim() === '') { validEntry = false; }
         if (entryAmounts[i].value === '') { emptyAmounts++; }
@@ -166,11 +177,12 @@ processButton.addEventListener('click', async () => {
                     `    ${x.account}  $${x.amount}\n` :
                     `    ${x.account}\n`;
             }
-            textArea.innerHTML += '<span id="entry_' + ++entryNum + '"><pre>' + entryString + '</pre><button onclick="removeEntry(' + "'entry_" + entryNum + "'" + ')">Remove Above Entry</button><br></span>';
+            textArea.innerHTML += `<span id="entry_${++entryNum}"><pre>${entryString}</pre><button onclick="removeEntry('entry_${entryNum}')">Remove Above Entry</button><br></span>`;
         }
     }
 });
 
+// Function to clear processed transactions area
 clearButton.addEventListener('click', () => {
     // Clear the results text
     if (confirm("Are you sure you want to clear the results?")) {
@@ -183,6 +195,7 @@ clearButton.addEventListener('click', () => {
     }
 })
 
+// Function to clean up HTML from processed transactions and copy to clipboard
 copyButton.addEventListener('click', () => {
     // Copy results text to the clipboard
     let copiedText = textArea.innerHTML;
@@ -198,6 +211,7 @@ copyButton.addEventListener('click', () => {
     navigator.clipboard.writeText(copiedText);
 })
 
+// Function to show or hide Check Number input
 checkBox.addEventListener('click', () => {
     checkNum.value = '';
     checkNum.style.display = checkBox.checked == false ?
