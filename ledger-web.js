@@ -1,32 +1,36 @@
 // "use strict";
 console.log("I'm Alive");
 
+let entryNum = 0;
 const textArea = document.getElementById("results");
+let lineNum = 10;
 const extraEntries = document.getElementById("xtra-entries");
+// Date Picker
 const dateArea = document.getElementById("the-date");
+// File Picker
 const definitionPicker = document.getElementById("defs");
 const definitionUpload = document.getElementById("def-upload");
-// const ledgerPicker = document.getElementById("ledger-file");
-const payeeOptions = document.getElementById("payee-select");
-const accountOptions = document.getElementsByClassName("account");
+// Account Info
+const accounts = [];
+const accountInputs = document.getElementsByClassName("account_input");
+const accountsList = document.getElementById("accountsList");
+// Payee Info
+const payees = [];
+const payeeInput = document.getElementById("payee-input");
+const payeeList = document.getElementById("payeeList");
+// Amount Entries
 const entryAmounts = document.getElementsByClassName("amount");
-const accountOthers = document.getElementsByClassName("amount_other");
+// Check Numbers
+const checkBox = document.getElementById("allowCheck");
 const checkNum = document.getElementById("check");
 checkNum.style.display = "none";
+// Buttons
 const processButton = document.getElementById("process-entry");
 const clearButton = document.getElementById("clear-results");
-const payeeOther = document.getElementById("payee-other");
 const copyButton = document.getElementById("copy-results");
-const checkBox = document.getElementById("allowCheck");
-const payees = [];
-const accounts = [];
-let entryNum = 0;
-let lineNum = 10;
-// let lines;
 
 definitionUpload.addEventListener('change', async () => {
     if (definitionUpload.files.length == 1) {
-        // console.log('File uploaded: ', definitionUpload.files[0]);
         let [file] = definitionUpload.files;
         const contents = await file.text();
         parseDefinitionContents(contents);
@@ -41,12 +45,10 @@ function parseDefinitionContents(contents) {
 
     lines = contents.split(/\r?\n/);
     for (let x of lines) {
-        // console.log(x);
         // Get Payees from each line
         let result = x.match(payeesRe);
         if (result) {
             // Add to payees Array
-            debug = [result[1].trim(), payees];
             if (payees.findIndex((z) => { return result[1].trim() === z }) == -1) {
                 payees.push(result[1].trim());
             }
@@ -61,31 +63,31 @@ function parseDefinitionContents(contents) {
         }
     }
     addPayees();
-    for (let z of accountOptions) { addAccounts(z) }
+    addAccounts();
 }
 
 function addPayees() {
     payees.sort();
-    // Get Current Payee value
-    let currentValue = payeeOptions.value;
     // Clear current Payees list
-    for (let i = payeeOptions.length; i > 0; i--) { payeeOptions.remove(i); }
+    payeeList.innerHTML = '';
     // Repopulate Payees list
-    for (let x of payees) { payeeOptions.add(new Option(x, undefined)); }
-    // Set back to previous value
-    payeeOptions.value = currentValue;
+    for (let x of payees) {
+        if (!payeeList.innerHTML.includes('<option>' + x + '</option>')) {
+            payeeList.innerHTML += '<option>' + x + '</option>';
+        }
+    }
 }
 
-function addAccounts(e) {
+function addAccounts() {
     accounts.sort();
-    // Get Current Account value
-    let currentValue = e.value;
     // Clear Accounts lists
-    for (let y = e.length; y > 0; y--) { e.remove(y); }
+    accountsList.innerHTML = '';
     // Populate Accounts lists
-    for (let y of accounts) { e.add(new Option(y, undefined)); }
-    // Set back to previous value
-    e.value = currentValue;
+    for (let y of accounts) {
+        if (!accountsList.innerHTML.includes('<option>' + y + '</option>')) {
+            accountsList.innerHTML += '<option>' + y + '</option>';
+        }
+    }
 }
 
 
@@ -93,29 +95,21 @@ let entryToRemove;
 function removeEntry(e) {
     entryToRemove = document.getElementById(e);
     entryToRemove.outerHTML = '';
-    // updateAccountOptionsStyle();
 }
 
 function addLineItem() {
     lineNum++;
+    // FIXME: Find current values and set them back after adding line
     let entryHTMLString = '<span id="input_line_' + lineNum + '">';
     entryHTMLString += '<i class="fa-solid fa-minus" style="cursor: pointer;" onclick="removeEntry(' + "'input_line_" + lineNum + "'" + ')"></i>\n';
     entryHTMLString += '<i class="fa-solid fa-plus" style="cursor: pointer;" onclick="addLineItem()"></i>\n';
-    entryHTMLString += '<select name="account_' + lineNum + '" id="account_' + lineNum + '" class="account">\n<option>Other</option>\n</select>\n';
-    entryHTMLString += '<input name="account_other_' + lineNum + '" id="account_other_' + lineNum + '"  class="amount_other" />\n';
+    entryHTMLString += '<input name="account-input_' + lineNum + '" id="account_' + lineNum + '" class="account_input" list="accountsList" />\n';
     entryHTMLString += '<input name="amount_' + lineNum + '" type="number" class="amount" /><br /></span>\n';
     extraEntries.innerHTML += entryHTMLString;
-
-    const myNewLine = document.getElementById('account_' + lineNum);
-    addAccounts(myNewLine);
-    // TODO: Fix this. Only will change the most recent line that is lineNum
-    updateAccountOptionsStyle();
 }
 
-// let test;
 let entryString;
 
-// document.addEventListener()
 processButton.addEventListener('click', async () => {
     // Add the results text
     let date;
@@ -127,21 +121,16 @@ processButton.addEventListener('click', async () => {
         let yyyy = today.getFullYear();
         date = `${yyyy}-${mm}-${dd}`;
     }
-    let payee = payeeOptions.value === 'Other' ?
-        payeeOther.value.trim() :
-        payeeOptions.value;
+    let payee = payeeInput.value;
     let checkNumber = parseInt(checkNum.value);
     const entries = [];
     let emptyAmounts = 0;
     let validEntry = true;
-    for (let i = 0; i < accountOptions.length; i++) {
-        if (accountOptions[i].value.trim() === '') { validEntry = false; }
-        if (accountOptions[i].value === 'Other' && accountOthers[i].value.trim() === '') { validEntry = false; };
+    for (let i = 0; i < accountInputs.length; i++) {
+        if (accountInputs[i].value.trim() === '') { validEntry = false; }
         if (entryAmounts[i].value === '') { emptyAmounts++; }
         entries.push({
-            account: accountOptions[i].value === 'Other' ?
-                accountOthers[i].value.trim() :
-                accountOptions[i].value,
+            account: accountInputs[i].value,
             amount: entryAmounts[i].value !== '' ?
                 parseFloat(entryAmounts[i].value).toFixed(2) :
                 ''
@@ -149,7 +138,6 @@ processButton.addEventListener('click', async () => {
     }
 
     if (payee.trim() === '') { validEntry = false; }
-    // console.log(emptyAmounts);
     if (!validEntry) { alert("Invalid entry") }
     else {
         if (emptyAmounts > 1) { alert("Invalid entry: Empty amounts cannot excede 1"); }
@@ -162,9 +150,7 @@ processButton.addEventListener('click', async () => {
                     `    ${x.account}  $${x.amount}\n` :
                     `    ${x.account}\n`;
             }
-            // console.log(entryString);
             textArea.innerHTML += '<span id="entry_' + ++entryNum + '"><pre>' + entryString + '</pre><button onclick="removeEntry(' + "'entry_" + entryNum + "'" + ')">Remove Above Entry</button><br></span>';
-            // textArea.innerHTML += '<pre>' + entryString + '</pre><br>';
         }
     }
 });
@@ -175,25 +161,10 @@ clearButton.addEventListener('click', () => {
         // Clear results pane
         textArea.innerHTML = '';
         // Clear entered amounts
-        // for (let x of entryAmounts) { x.value = ''; }
-        // Clear accounts
-        // for (let x of accountOptions) { x.value = ''; }
-        // for (let x of accountOthers) {
-            // x.value = '';
-            // x.style.display = 'none';
-        // }
-        // Clear Payee
-        // payeeOptions.value = '';
-        // payeeOther.value = '';
-        // payeeOther.style.display = 'none';
-        // Clear Check Number
-        // checkNum.value = '';
-        // Clear the Date
-        // dateArea.value = '';
+        for (let x of entryAmounts) { x.value = ''; }
         // Reset entry number
         entryNum = 0;
     }
-    // else {textArea.innerHTML=e;}
 })
 
 copyButton.addEventListener('click', () => {
@@ -217,23 +188,3 @@ checkBox.addEventListener('click', () => {
         "none" :
         "inline";
 })
-
-payeeOptions.addEventListener('change', () => {
-    payeeOther.style.display = payeeOptions.value === 'Other' ?
-        "inline" :
-        'none';
-})
-
-function updateAccountOptionsStyle() {
-    for (let i = 0; i < accountOptions.length; i++) {
-        let old_elem = accountOptions[i];
-        let new_elem = old_elem.cloneNode(true);
-        old_elem.parentNode.replaceChild(new_elem, old_elem);
-        accountOptions[i].addEventListener('change', () => {
-            accountOthers[i].style.display = accountOptions[i].value === 'Other' ?
-                'inline' :
-                'none';
-        });
-    }
-}
-updateAccountOptionsStyle();
