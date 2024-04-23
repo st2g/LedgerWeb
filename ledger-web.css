@@ -2,12 +2,13 @@ body {
     margin-left:10%;
 }
 
+input.account_input {
+    width: 200px;
+}
+
 input#check {
     width: 55px;
     /* border: 5px; */
-}
-input {
-    width: 200px;
 }
 
 input.amount {
