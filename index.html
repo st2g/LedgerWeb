@@ -17,7 +17,7 @@
     <br />
     <input name="date" type="date" id="the-date" />
     <input name="check" type="number" id="check" />
-    <input name="payee-input" id="payee-input" list="payeeList" />
+    <input name="payee-input" id="payee-input" list="payeeList" onclick="this.select()"/>
     <datalist id="payeeList"></datalist>
     <br />
     <datalist id="accountsList"></datalist>
@@ -25,12 +25,12 @@
         <span id="input_line_1">
             <i class="fa-solid fa-minus" style="visibility: hidden"></i>
             <i class="fa-solid fa-plus" style="visibility: hidden"></i>
-            <input name="account-input_1" class="account_input" list="accountsList" />
+            <input name="account-input_1" class="account_input" list="accountsList" onclick="this.select()"/>
             <input name="amount_1" type="number" class="amount" />
             <br /></span>
         <span id="input_line_2"><i class="fa-solid fa-minus" style="visibility: hidden"></i>
             <i class="fa-solid fa-plus" style="cursor: pointer;" onclick="addLineItem()"></i>
-            <input name="account-input_2" class="account_input" list="accountsList" />
+            <input name="account-input_2" class="account_input" list="accountsList" onclick="this.select()"/>
             <input name="amount_2" type="number" class="amount" />
             <br /></span>
         <span id="xtra-entries"></span>

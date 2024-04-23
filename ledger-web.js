@@ -97,13 +97,17 @@ function removeEntry(e) {
     entryToRemove.outerHTML = '';
 }
 
+function selectEntry(e){
+    e.target.select();
+}
+
 function addLineItem() {
     lineNum++;
     // FIXME: Find current values and set them back after adding line
     let entryHTMLString = '<span id="input_line_' + lineNum + '">';
     entryHTMLString += '<i class="fa-solid fa-minus" style="cursor: pointer;" onclick="removeEntry(' + "'input_line_" + lineNum + "'" + ')"></i>\n';
     entryHTMLString += '<i class="fa-solid fa-plus" style="cursor: pointer;" onclick="addLineItem()"></i>\n';
-    entryHTMLString += '<input name="account-input_' + lineNum + '" id="account_' + lineNum + '" class="account_input" list="accountsList" />\n';
+    entryHTMLString += '<input name="account-input_' + lineNum + '" id="account_' + lineNum + '" class="account_input" list="accountsList" onclick="this.select()"/>\n';
     entryHTMLString += '<input name="amount_' + lineNum + '" type="number" class="amount" /><br /></span>\n';
     extraEntries.innerHTML += entryHTMLString;
 }
