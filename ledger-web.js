@@ -15,10 +15,12 @@ const definitionPicker = document.getElementById("defs");
 const definitionUpload = document.getElementById("def-upload");
 // Account Info
 const accounts = [];
+const xtraAccounts = [];
 const accountInputs = document.getElementsByClassName("account_input");
 const accountsList = document.getElementById("accountsList");
 // Payee Info
 const payees = [];
+const xtraPayees = [];
 const payeeInput = document.getElementById("payee-input");
 const payeeList = document.getElementById("payeeList");
 // Amount Entries
@@ -31,6 +33,7 @@ checkNum.style.display = "none";
 const processButton = document.getElementById("process-entry");
 const clearButton = document.getElementById("clear-results");
 const copyButton = document.getElementById("copy-results");
+const copyXtrasButton = document.getElementById("copy-xtras");
 
 //////////////////////////////////////////////////////////////
 // Functions
@@ -139,6 +142,7 @@ function addLineItem() {
 processButton.addEventListener('click', async () => {
     // Add the results text
     let date;
+    const [payeesCount, accountsCount] = [xtraPayees.length, xtraAccounts.length];
     if (dateArea.value) { date = dateArea.value; }
     else {
         let today = new Date();
@@ -162,6 +166,11 @@ processButton.addEventListener('click', async () => {
                 parseFloat(entryAmounts[i].value).toFixed(2) :
                 ''
         });
+        // Add account to extra accounts list
+        if (accounts.findIndex((z) => { return accountInputs[i].value === z }) == -1) {
+            xtraAccounts.push(accountInputs[i].value);
+            accounts.push(accountInputs[i].value);
+        }
     }
 
     if (payee.trim() === '') { validEntry = false; }
@@ -169,6 +178,11 @@ processButton.addEventListener('click', async () => {
     else {
         if (emptyAmounts > 1) { alert("Invalid entry: Empty amounts cannot excede 1"); }
         else {
+            // Add Payee to extra Payees list
+            if (payees.findIndex((z) => { return payee === z }) == -1) {
+                xtraPayees.push(payee);
+                payees.push(payee);
+            }
             entryString = checkNumber ?
                 `${date} (${checkNumber}) ${payee}\n` :
                 `${date} ${payee}\n`;
@@ -178,6 +192,11 @@ processButton.addEventListener('click', async () => {
                     `    ${x.account}\n`;
             }
             textArea.innerHTML += `<span id="entry_${++entryNum}"><pre>${entryString}</pre><button onclick="removeEntry('entry_${entryNum}')">Remove Above Entry</button><br></span>`;
+            // If we added any payees or accounts, add them to the dropdown for future use
+            if (payeesCount < xtraPayees.length || accountsCount < xtraAccounts.length) {
+                addAccounts();
+                addPayees();
+            }
         }
     }
 });
@@ -217,4 +236,12 @@ checkBox.addEventListener('click', () => {
     checkNum.style.display = checkBox.checked == false ?
         "none" :
         "inline";
+})
+
+copyXtrasButton.addEventListener('click', () => {
+    // Logic to copy new payees and accounts to clipboard
+    let copiedText = '';
+    for (let x of xtraAccounts) { copiedText += `account ${x}\n`; }
+    for (let x of xtraPayees) { copiedText += `payee ${x}\n`; }
+    navigator.clipboard.writeText(copiedText);
 })
