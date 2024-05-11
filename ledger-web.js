@@ -230,7 +230,7 @@ copyButton.addEventListener('click', () => {
     navigator.clipboard.writeText(copiedText);
 })
 
-// Function to show or hide Check Number input
+// Listener to show or hide Check Number input
 checkBox.addEventListener('click', () => {
     checkNum.value = '';
     checkNum.style.display = checkBox.checked == false ?
@@ -238,6 +238,7 @@ checkBox.addEventListener('click', () => {
         "inline";
 })
 
+// Listener to copy Xtra lists to clipboard, formatted properly
 copyXtrasButton.addEventListener('click', () => {
     // Logic to copy new payees and accounts to clipboard
     let copiedText = '';
@@ -245,3 +246,13 @@ copyXtrasButton.addEventListener('click', () => {
     for (let x of xtraPayees) { copiedText += `payee ${x}\n`; }
     navigator.clipboard.writeText(copiedText);
 })
+
+// Listener to allow the Enter key from Amount fields to process xact
+for (let x of entryAmounts) {
+    x.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            processButton.click();
+        }
+    })
+}
