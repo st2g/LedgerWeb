@@ -143,7 +143,7 @@ processButton.addEventListener('click', async () => {
     // Add the results text
     let date;
     const [payeesCount, accountsCount] = [xtraPayees.length, xtraAccounts.length];
-    if (dateArea.value) { date = dateArea.value; }
+    if (dateArea.value) { date = dateArea.value.replace('-','/'); }
     else {
         let today = new Date();
         let dd = String(today.getDate()).padStart(2, '0');
