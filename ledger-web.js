@@ -183,6 +183,7 @@ processButton.addEventListener('click', async () => {
                 xtraPayees.push(payee);
                 payees.push(payee);
             }
+            // Find a way to modify this to add paired entries (PayPal, Redcard)
             entryString = checkNumber ?
                 `${date} (${checkNumber}) ${payee}\n` :
                 `${date} ${payee}\n`;
@@ -190,6 +191,17 @@ processButton.addEventListener('click', async () => {
                 entryString += x.amount ?
                     `    ${x.account}  $${x.amount}\n` :
                     `    ${x.account}\n`;
+            }
+            // Find if RedCard Matches entryString
+            if (entryString.match(/RedCard/g)) {
+                entryString += `\n${date} RedCard Payment\n`;
+                entryString += `    Liabilities:Store Card:RedCard  $${(parseFloat(entries[0].amount)).toFixed(2)}\n`;
+                entryString += `    Assets:Banking:Wells Fargo\n`
+            }
+            if (entryString.match(/PayPal/g)) {
+                entryString += `\n${date} PayPal Payment\n`;
+                entryString += `    Assets:Banking:PayPal  $${(parseFloat(entries[0].amount)).toFixed(2)}\n`;
+                entryString += `    Assets:Banking:Wells Fargo\n`
             }
             textArea.innerHTML += `<span id="entry_${++entryNum}"><pre>${entryString}</pre><button onclick="removeEntry('entry_${entryNum}')">Remove Above Entry</button><br></span>`;
             // If we added any payees or accounts, add them to the dropdown for future use
