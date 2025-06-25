@@ -187,7 +187,9 @@ processButton.addEventListener('click', async () => {
             entryString = checkNumber ?
                 `${date} (${checkNumber}) ${payee}\n` :
                 `${date} ${payee}\n`;
+            let totalAmount = parseFloat(0);
             for (let x of entries) {
+                totalAmount += x.amount ? parseFloat(x.amount) : parseFloat(0);
                 entryString += x.amount ?
                     `    ${x.account}  $${x.amount}\n` :
                     `    ${x.account}\n`;
@@ -195,12 +197,12 @@ processButton.addEventListener('click', async () => {
             // Find if RedCard Matches entryString
             if (entryString.match(/RedCard/g)) {
                 entryString += `\n${date} RedCard Payment\n`;
-                entryString += `    Liabilities:Store Card:RedCard  $${(parseFloat(entries[0].amount)).toFixed(2)}\n`;
+                entryString += `    Liabilities:Store Card:RedCard  $${parseFloat(totalAmount).toFixed(2)}\n`;
                 entryString += `    Assets:Banking:Wells Fargo\n`
             }
             if (entryString.match(/PayPal/g)) {
                 entryString += `\n${date} PayPal Payment\n`;
-                entryString += `    Assets:Banking:PayPal  $${(parseFloat(entries[0].amount)).toFixed(2)}\n`;
+                entryString += `    Assets:Banking:PayPal  $${parseFloat(totalAmount).toFixed(2)}\n`;
                 entryString += `    Assets:Banking:Wells Fargo\n`
             }
             textArea.innerHTML += `<span id="entry_${++entryNum}"><pre>${entryString}</pre><button onclick="removeEntry('entry_${entryNum}')">Remove Above Entry</button><br></span>`;
