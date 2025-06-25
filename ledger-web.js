@@ -149,7 +149,7 @@ processButton.addEventListener('click', async () => {
         let dd = String(today.getDate()).padStart(2, '0');
         let mm = String(today.getMonth() + 1).padStart(2, '0');
         let yyyy = today.getFullYear();
-        date = `${yyyy}-${mm}-${dd}`;
+        date = `${yyyy}/${mm}/${dd}`;
     }
     let payee = payeeInput.value;
     let checkNumber = parseInt(checkNum.value);
@@ -183,13 +183,27 @@ processButton.addEventListener('click', async () => {
                 xtraPayees.push(payee);
                 payees.push(payee);
             }
+            // Find a way to modify this to add paired entries (PayPal, Redcard)
             entryString = checkNumber ?
                 `${date} (${checkNumber}) ${payee}\n` :
                 `${date} ${payee}\n`;
+            let totalAmount = parseFloat(0);
             for (let x of entries) {
+                totalAmount += x.amount ? parseFloat(x.amount) : parseFloat(0);
                 entryString += x.amount ?
                     `    ${x.account}  $${x.amount}\n` :
                     `    ${x.account}\n`;
+            }
+            // Find if RedCard Matches entryString
+            if (entryString.match(/RedCard/g)) {
+                entryString += `\n${date} RedCard Payment\n`;
+                entryString += `    Liabilities:Store Card:RedCard  $${parseFloat(totalAmount).toFixed(2)}\n`;
+                entryString += `    Assets:Banking:Wells Fargo\n`
+            }
+            if (entryString.match(/PayPal/g)) {
+                entryString += `\n${date} PayPal Payment\n`;
+                entryString += `    Assets:Banking:PayPal  $${parseFloat(totalAmount).toFixed(2)}\n`;
+                entryString += `    Assets:Banking:Wells Fargo\n`
             }
             textArea.innerHTML += `<span id="entry_${++entryNum}"><pre>${entryString}</pre><button onclick="removeEntry('entry_${entryNum}')">Remove Above Entry</button><br></span>`;
             // If we added any payees or accounts, add them to the dropdown for future use
